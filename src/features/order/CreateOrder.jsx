@@ -1,3 +1,60 @@
+/**
+ * CreateOrder Component
+ *
+ * A form component for creating a new pizza order with customer details,
+ * phone number validation, address input with geolocation support, and
+ * optional priority order upgrade.
+ *
+ * @component
+ * @returns {React.ReactElement} The order creation form or empty cart message
+ *
+ * @requires react
+ * @requires react-router-dom
+ * @requires redux
+ *
+ * @example
+ * // Usage in router
+ * {
+ *   path: '/order/new',
+ *   element: <CreateOrder />,
+ *   action: CreateOrder.action
+ * }
+ */
+
+/**
+ * Validates phone number format using regex pattern
+ *
+ * @function isValidPhone
+ * @param {string} str - The phone number string to validate
+ * @returns {boolean} True if phone number format is valid
+ *
+ * @description
+ * Accepts various international phone formats with optional:
+ * - Country code prefix (+1-4 digits)
+ * - Area code in parentheses
+ * - Separators (hyphen, dot, space)
+ *
+ * @example
+ * isValidPhone('+1-234-567-8900') // true
+ * isValidPhone('234567890') // true
+ */
+
+/**
+ * Action handler for form submission (React Router)
+ *
+ * @async
+ * @function action
+ * @param {Object} param - The action parameters
+ * @param {Request} param.request - The form submission request
+ * @returns {Promise<Object|RedirectResponse>} Error object if validation fails, otherwise redirects to order details page
+ *
+ * @description
+ * Processes the order form submission, validates phone number,
+ * parses form data, creates the order via API, clears cart, and
+ * redirects to the new order page.
+ *
+ * @throws {Object} Returns validation errors if phone format is invalid
+ */
 import { useState } from 'react';
 import { Form, redirect, useActionData, useNavigation } from 'react-router-dom';
 import { createOrder } from '../../services/apiRestaurant';
@@ -124,6 +181,7 @@ function CreateOrder() {
   );
 }
 
+// eslint-disable-next-line
 export async function action({ request }) {
   const formData = await request.formData();
   const data = Object.fromEntries(formData);

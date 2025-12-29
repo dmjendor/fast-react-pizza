@@ -1,14 +1,40 @@
 // Test ID: IIDSAT
 
-import { useLoaderData } from 'react-router-dom';
+import { useFetcher, useLoaderData } from 'react-router-dom';
 import { getOrder } from '../../services/apiRestaurant';
 import { calcMinutesLeft, formatCurrency, formatDate } from '../../utilities/helpers';
 import OrderItem from '../order/OrderItem';
+import { useEffect } from 'react';
+/**
+ * Order component displays detailed information about a pizza order.
+ *
+ * This component retrieves order data using the loader and displays:
+ * - Order ID and status
+ * - Priority badge (if applicable)
+ * - Estimated delivery time and countdown
+ * - List of items in the order cart
+ * - Price breakdown including order total and priority surcharge
+ *
+ * @component
+ * @returns {JSX.Element} A detailed order status page with order information and cart items
+ *
+ * @requires useLoaderData - Hook to access order data from the router loader
+ * @requires OrderItem - Component to render individual cart items
+ * @requires calcMinutesLeft - Utility function to calculate minutes until delivery
+ * @requires formatDate - Utility function to format dates
+ * @requires formatCurrency - Utility function to format currency values
+ */
+
 function Order() {
   const order = useLoaderData();
   // Everyone can search for all orders, so for privacy reasons we're gonna gonna exclude names or address, these are only for the restaurant staff
   const { id, status, priority, priorityPrice, orderPrice, estimatedDelivery, cart } = order;
   const deliveryIn = calcMinutesLeft(estimatedDelivery);
+  const fetcher = useFetcher();
+
+  useEffect(() => {
+    if (!fetcher.data && fetcher.state === 'idle') fetcher.load('/menu');
+  }, [fetcher]);
 
   return (
     <div className="space-y-8 px-4 py-6">
@@ -40,7 +66,16 @@ function Order() {
 
       <ul className="divide-y divide-stone-500 border-b border-t border-stone-500">
         {cart.map((item) => (
-          <OrderItem item={item} key={item.id} />
+          <OrderItem
+            item={item}
+            key={item.id}
+            isLoadingIngredients={fetcher.state === 'loading'}
+            ingredients={
+              fetcher?.data?.find((el) => {
+                return item.pizzaId === el.id;
+              })?.ingredients ?? []
+            }
+          />
         ))}
       </ul>
 
@@ -53,6 +88,7 @@ function Order() {
   );
 }
 
+// eslint-disable-next-line
 export async function loader({ params }) {
   const order = await getOrder(params.orderId);
   return order;
