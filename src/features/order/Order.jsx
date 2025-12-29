@@ -5,6 +5,7 @@ import { getOrder } from '../../services/apiRestaurant';
 import { calcMinutesLeft, formatCurrency, formatDate } from '../../utilities/helpers';
 import OrderItem from '../order/OrderItem';
 import { useEffect } from 'react';
+import UpdateOrder from './UpdateOrder';
 /**
  * Order component displays detailed information about a pizza order.
  *
@@ -84,6 +85,7 @@ function Order() {
         {priority && <p>Price priority: {formatCurrency(priorityPrice)}</p>}
         <p>To pay on delivery: {formatCurrency(orderPrice + priorityPrice)}</p>
       </div>
+      {!priority && <UpdateOrder order={order} />}
     </div>
   );
 }
